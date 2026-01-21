@@ -51,17 +51,14 @@ jobs:
       - name: Update cabal package list
         run: cabal update
 
-      - name: Ensure dependency freeze file
-        run: cabal build --dry-run
-
       - name: Install dependencies
-        run: cabal build --only-dependencies
+        run: cabal build --only-dependencies --enable-tests
 
       - name: Build the project
-        run: cabal build
+        run: cabal build --enable-tests
 
       - name: Install HSpec-Discover
         run: cabal install hspec-discover --overwrite-policy=always
 
       - name: Run tests
-        run: cabal test play-my-engine-test --test-options="+RTS -N -RTS"
+        run: cabal test index-engine-hs-test --test-options="+RTS -N -RTS"
