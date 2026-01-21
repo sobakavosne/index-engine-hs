@@ -1,8 +1,6 @@
 cabal-version:   3.6
 name:            index-engine-hs
 version:         0.1.0.0
-license:         BSD-3-Clause
-license-file:    LICENSE
 author:          Λ
 maintainer:      sobakavosne@protonmail.com
 category:        Data
@@ -21,7 +19,7 @@ common shared-deps
     , vector
 
   default-language: Haskell2010
-  ghc-options:      -Wall
+  ghc-options:      -Wall -threaded
 
 library
   import:           shared-deps
@@ -41,6 +39,7 @@ executable index-engine-hs
   main-is:          Main.hs
   build-depends:    index-engine-hs
   hs-source-dirs:   exe
+  ghc-options:      -with-rtsopts=-N
   default-language: Haskell2010
 
 test-suite index-engine-hs-test
@@ -48,25 +47,24 @@ test-suite index-engine-hs-test
   type:             exitcode-stdio-1.0
   main-is:          Spec.hs
   other-modules:
-    ScheduleSpec
-    StateStoreSpec
-    MarketDataSpec
-    EqualWeightStrategySpec
-    RunnerSpec
-    IntegrationSpec
-    ErrorHandlingSpec
     CacheInvalidationSpec
+    EqualWeightStrategySpec
+    ErrorHandlingSpec
+    IntegrationSpec
+    MarketDataSpec
     PerformanceSpec
     RecursionSpec
+    RunnerSpec
+    ScheduleSpec
+    StateStoreSpec
 
   build-depends:
+    , directory
     , hspec
     , hspec-discover
-    , directory
     , index-engine-hs
     , QuickCheck
 
   ghc-options:      -threaded -with-rtsopts=-N
-
   hs-source-dirs:   test
   default-language: Haskell2010
