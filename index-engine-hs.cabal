@@ -66,5 +66,7 @@ test-suite index-engine-hs-test
     , index-engine-hs
     , QuickCheck
 
+  ghc-options:      -threaded -with-rtsopts=-N
+
   hs-source-dirs:   test
   default-language: Haskell2010
