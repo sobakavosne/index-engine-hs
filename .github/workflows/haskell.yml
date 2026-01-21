@@ -1,0 +1,67 @@
+name: Haskell CI
+
+on:
+  push:
+    branches: ["master"]
+    paths-ignore:
+      - "data/**"
+      - "CHANGELOG.md"
+  pull_request:
+    branches: ["master"]
+    paths-ignore:
+      - "data/**"
+      - "CHANGELOG.md"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      cache-name: haskell-deps
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache GHCup and Cabal store
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.ghcup
+            ~/.cabal/store
+          key: ${{ runner.os }}-ghc-${{ env.cache-name }}-${{ hashFiles('**/cabal.project.freeze') }}
+          restore-keys: |
+            ${{ runner.os }}-ghc-${{ env.cache-name }}-
+            ${{ runner.os }}-ghc-
+
+      - name: Setup Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: "9.4.7"
+          cabal-version: "3.12"
+          enable-stack: false
+
+      - name: Verify Cache Restore
+        run: |
+          ls -la ~/.ghcup || echo "GHCup cache missing"
+          ls -la ~/.cabal/store || echo "Cabal store cache missing"
+
+      - name: Update cabal package list
+        run: cabal update
+
+      - name: Ensure dependency freeze file
+        run: cabal build --dry-run
+
+      - name: Install dependencies
+        run: cabal build --only-dependencies
+
+      - name: Build the project
+        run: cabal build
+
+      - name: Install HSpec-Discover
+        run: cabal install hspec-discover --overwrite-policy=always
+
+      - name: Run tests
+        run: cabal test play-my-engine-test --test-options="+RTS -N -RTS"
